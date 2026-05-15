@@ -1,0 +1,58 @@
+{
+  "name": "personal-habit-tracking-streak-management-api",
+  "version": "1.0.0",
+  "description": "Enterprise Personal Habit Tracking & Streak Management REST API",
+  "main": "dist/bin/index.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/bin/index.js",
+    "test": "jest --config jest.config.ts",
+    "test:watch": "jest --config jest.config.ts --watch",
+    "test:coverage": "jest --config jest.config.ts --coverage",
+    "test:ci": "jest --config jest.config.ts --ci --forceExit --detectOpenHandles",
+    "build:check": "tsc --noEmit"
+  },
+  "keywords": [
+    "habit",
+    "tracker",
+    "streak",
+    "api",
+    "typescript",
+    "postgres",
+    "redis"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "disposable-email-domains": "^1.0.62",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "joi": "^17.13.1",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.11.5",
+    "redis": "^4.6.13"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.12.7",
+    "@types/pg": "^8.11.6",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.0",
+    "supertest": "^6.3.4",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

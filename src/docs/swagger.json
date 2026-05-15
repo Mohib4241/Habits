@@ -1,0 +1,307 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Personal Habit Tracking & Streak Management REST API",
+    "description": "Enterprise-grade scalable REST API backend for personal habit configuration, live tracking logs, and automated streak engine calculation.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "AuthInput": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@enterprise.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "securepassword123"
+          }
+        }
+      },
+      "CreateHabitInput": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Read 20 pages"
+          },
+          "description": {
+            "type": "string",
+            "example": "Read tech docs or a novel daily"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": ["daily", "weekly"],
+            "default": "daily"
+          },
+          "reminder_time": {
+            "type": "string",
+            "example": "21:30"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["learning", "books"]
+          }
+        }
+      },
+      "TrackHabitInput": {
+        "type": "object",
+        "properties": {
+          "completed_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-05-15"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user account",
+        "tags": ["Authentication"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully registered"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate a user and return access/refresh tokens",
+        "tags": ["Authentication"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful authentication"
+          }
+        }
+      }
+    },
+    "/habits": {
+      "get": {
+        "summary": "Retrieve list of habits with optional tag filtering and pagination",
+        "tags": ["Habits"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of habits retrieved successfully"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new habit resource",
+        "tags": ["Habits"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHabitInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Habit created successfully"
+          }
+        }
+      }
+    },
+    "/habits/{id}": {
+      "get": {
+        "summary": "Get specific habit details by ID",
+        "tags": ["Habits"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Habit details retrieved successfully"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update habit properties",
+        "tags": ["Habits"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHabitInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Habit configuration updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an existing habit",
+        "tags": ["Habits"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Habit resource deleted"
+          }
+        }
+      }
+    },
+    "/habits/{id}/track": {
+      "post": {
+        "summary": "Log habit completion for a specific target date",
+        "tags": ["Tracking & Streaks"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackHabitInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Completion successfully tracked"
+          }
+        }
+      }
+    },
+    "/habits/{id}/history": {
+      "get": {
+        "summary": "Retrieve completion tracking history and streak engine metadata stats",
+        "tags": ["Tracking & Streaks"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "History and streaks returned successfully"
+          }
+        }
+      }
+    }
+  }
+}

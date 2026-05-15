@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: habits-api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=habit_tracker
+      - JWT_SECRET=your_jwt_secret_key_here
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - habits-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: habits-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=habit_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./src/database-storage/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./src/database-storage/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - habits-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: habits-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - habits-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+
+networks:
+  habits-network:
+    driver: bridge
